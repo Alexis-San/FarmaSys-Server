@@ -4,13 +4,14 @@ import Usuario from '../models/usuario';
 
 
 
+//lista de usuarios
 export const getUsuarios =async (req:Request, res:Response) =>{
     
     const usuarios = await Usuario.findAll();
 
     res.json({usuarios});
 }
-
+// usuario por id (pk)
 export const getUsuario = async(req:Request, res:Response) =>{
     const {id} = req.params;
     const usuario= await Usuario.findByPk(id);
@@ -24,7 +25,7 @@ export const getUsuario = async(req:Request, res:Response) =>{
     }
     
 }
-
+//crear usuario
 export const postUsuario = async (req:Request, res:Response) =>{
     const {body} = req;
     try {
@@ -40,6 +41,9 @@ export const postUsuario = async (req:Request, res:Response) =>{
                 msg: 'ya existe un usuario con el email'+body.email
             });
         }
+
+        const usuario=Usuario.create({...body});
+        
        
 
     } catch (error) {
@@ -50,7 +54,7 @@ export const postUsuario = async (req:Request, res:Response) =>{
     }
     
 }
-
+// modificar usuario
 export const putUsuario =async(req:Request, res:Response) =>{
     const{id}=req.params;
     const {body} = req;
@@ -60,7 +64,7 @@ export const putUsuario =async(req:Request, res:Response) =>{
         const usuario= await Usuario.findByPk(id);
         if(!usuario){
             return res.status(404).json({
-                msg:'no existe un usuario con id'+ id
+                msg:'no existe un usuario con id '+ id
             });
         }else{
             await usuario.update(body);
@@ -78,11 +82,17 @@ export const putUsuario =async(req:Request, res:Response) =>{
     }
 }
 
-export const deleteUsuario =(req:Request, res:Response) =>{
+export const deleteUsuario = async (req:Request, res:Response) =>{
     
     const{id}=req.params;
-    res.json({
-        msg:'delete usuario',
-        id
-    })
+    const usuario=await Usuario.findByPk(id);
+    if(!usuario){
+        return res.status(404).json({
+            msg:'no existe un usuario con la id ' +id
+        });
+    } else {
+        await usuario.update({estado:false});
+        res.json(usuario);
+    }
+
 }
