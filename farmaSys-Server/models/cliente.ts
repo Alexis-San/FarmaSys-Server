@@ -1,36 +1,32 @@
 import { DataTypes } from 'sequelize';
 import db from '../db/connection';
 
-const Usuario=db.define('Usuario', {
+const Cliente=db.define('cliente',{
     id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
     },
     nombre:{
         type:DataTypes.STRING,
         allowNull: false,
     },
-    email:{
-        type:DataTypes.STRING,
-        allowNull: false,
-        unique:true
-    },
-    password:{
+    apellido:{
         type:DataTypes.STRING,
         allowNull: false,
     },
-        
-    rol:{
-        type:DataTypes.STRING
-        
+    tipo_cliente:{
+        type:DataTypes.STRING,
+        allowNull: false,
+        defaultValue:"normal"
     },
+    //este campo es para eliminacion logica
     estado:{
         type:DataTypes.BOOLEAN,
         defaultValue:true
     }
-    
+
 });
 
-export default Usuario;
+export default Cliente;
