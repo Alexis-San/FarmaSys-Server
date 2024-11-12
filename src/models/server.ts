@@ -1,15 +1,14 @@
 
-import express from 'express';
+import express, {Application} from 'express';
 import cors from 'cors';
+import db from '../db/connection';
 import * as userRoutes from '../routes/usuario';
 import * as clientesRoutes from '../routes/cliente';
 import * as productosRoutes from '../routes/producto';
 import * as actuadoresRoutes from '../routes/actuador';
-import db from '../db/connection';
-
 class Server {
 
-    private  app: express.Application;
+    private  app: Application;
     private port: string;
     private apiPaths={
         usuarios: '/api/usuarios',
@@ -20,61 +19,56 @@ class Server {
 
     }
 
-    constructor(){
-    this.app=express();
-    this.port=process.env.PORT || '8000';
-
-    this.dbConnection();
-    //metodos iniciales    
-    this.middlewares();
-    this.routes();
-
-
+    constructor() {
+        this.app = express();
+        this.port = process.env.PORT || '8000';
+        // Conectar a base de datos
+        console.log('Initializing dbConnection');
+        this.dbConnection();
+        // Métodos iniciales    
+        this.middlewares();
+        this.routes();
+      }
     
 
-}
+listen() {
+    this.app.listen(this.port, () => {
+      console.log(`Server running on port ${this.port}`);
+    });
+  }
 
-async dbConnection(){
+
+async dbConnection() {
     try {
-        await db.authenticate();
-        await db.sync({force:true});
-        console.log('database online')
+      console.log('Connecting to database');
+      await db.authenticate();
+      console.log('Database authenticated');
+      console.log('Database synced');
+      console.log('Database online');
+      await db.sync({}); //force true para borrar la base de datos
     } catch (error) {
-        throw new Error("fallo "+ error); 
-        
+      throw new Error("Error al crear modelos " + error);
     }
+  }
 
-}
-
-middlewares(){
-    //cors
+middlewares() {
+    // CORS
     this.app.use(cors());
-    //lectura del body
+    // Lectura del body
     this.app.use(express.json());
-    //carpeta publica
+    // Carpeta pública
     this.app.use(express.static('public'));
+  }
 
-
-
-
-}
 
 routes(){
     this.app.use(this.apiPaths.usuarios, userRoutes.default)
     this.app.use(this.apiPaths.clientes, clientesRoutes.default)
     this.app.use(this.apiPaths.productos, productosRoutes.default )
-    //this.app.use(this.apiPaths.proveedores, productosRoutes.default )
+    this.app.use(this.apiPaths.proveedores, productosRoutes.default )
     this.app.use(this.apiPaths.actuadores, actuadoresRoutes.default )
 }
 
-
-listen(){
-
-    this.app.listen(this.port,()=>{
-        console.log('servidor corriendo en '+this.port);
-    })
-
-}
 
 }
 
