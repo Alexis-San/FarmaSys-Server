@@ -6,62 +6,58 @@ import categoria from './categoria';
 
 
 
-const Producto=db.define('producto',{
+const Producto = db.define('producto', {
     id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
     },
-    codigo_cafapar:{
-        type:DataTypes.INTEGER,
+    codigo_cafapar: {
+        type: DataTypes.INTEGER,
     },
-    nombre_comercial:{
-        type:DataTypes.STRING,
+    nombre_comercial: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
-    presentacion:{
-        type:DataTypes.STRING,
+    presentacion: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
-    descripcion:{
-        type:DataTypes.TEXT,  
+    descripcion: {
+        type: DataTypes.TEXT,
     },
-    precio_venta:{
-        type:DataTypes.BIGINT,
+    precio_venta: {
+        type: DataTypes.BIGINT,
         allowNull: false,
     },
-    laboratorio:{
-        type:DataTypes.STRING,
-        
+    laboratorio: {
+        type: DataTypes.STRING,
     },
-    condicion_venta:{
-        type:DataTypes.STRING,
+    condicion_venta: {
+        type: DataTypes.STRING,
         allowNull: false,
+    }, //nacional, importado
+    procedencia: {
+        type: DataTypes.STRING,
     },
-    procedencia:{
-        type:DataTypes.STRING,
-        
-    },
-    //este campo es para eliminacion logica
-    estado:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:true
+    estado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
+});
 
+const Producto_Actuador = db.define('producto_actuador', {}, { timestamps: true });
+const Producto_Proveedor = db.define('producto_proveedor', {}, { timestamps: true });
+const Producto_Categoria = db.define('producto_categoria', {}, { timestamps: true });
 
+Producto.belongsToMany(actuador, { through: Producto_Actuador });
+actuador.belongsToMany(Producto, { through: Producto_Actuador });
 
-})
+Producto.belongsToMany(proveedor, { through: Producto_Proveedor });
+proveedor.belongsToMany(Producto, { through: Producto_Proveedor });
 
-
-Producto.belongsToMany(actuador, { through:'producto_actuador' });
-actuador.belongsToMany(Producto, { through: 'producto_actuador' });
-
-Producto.belongsToMany(proveedor, { through: 'producto_proveedor' });
-proveedor.belongsToMany(Producto, { through:  'producto_proveedor'  });
-
-Producto.belongsToMany(categoria, { through: 'producto_categoria' });
-categoria.belongsToMany(Producto, { through: 'producto_categoria' });
+Producto.belongsToMany(categoria, { through: Producto_Categoria });
+categoria.belongsToMany(Producto, { through: Producto_Categoria });
 
 export default Producto;
-
