@@ -23,7 +23,7 @@ const Proveedor = db.define('proveedor', {
         defaultValue:true
     }
 }, {
-    tableName: 'proveedores' // Especifica el nombre correcto de la tabla
+    tableName: 'proveedores' // Especifica el nombre de la tabla en la base de datos
 });
 
 export default Proveedor;

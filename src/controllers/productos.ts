@@ -7,4 +7,4 @@ export const getProductos =async (req:Request, res:Response) =>{
     const productos = await  Producto.findAll()
   
     res.json({productos});
-}
+}                                                                                                                                                                                                                                       

@@ -1,98 +1,69 @@
-
+// src/controllers/usuario.controller.ts
 import { Request, Response } from 'express';
-import Usuario from '../models/usuario';
+import * as usuarioService from '../services/usuarios'
 
-
-
-//lista de usuarios
-export const getUsuarios =async (req:Request, res:Response) =>{
-    
-    const usuarios = await Usuario.findAll();
-
-    res.json({usuarios});
-}
-// usuario por id (pk)
-export const getUsuario = async(req:Request, res:Response) =>{
-    const {id} = req.params;
-    const usuario= await Usuario.findByPk(id);
-
-    if (usuario){
-        res.json({usuario})
-    } else {
-        res.status(404).json({
-            msg:'no existe el id '+ id
-        });
-    }
-    
-}
-//crear usuario
-export const postUsuario = async (req:Request, res:Response) =>{
-    const {body} = req;
+export const getUsuarios = async (req: Request, res: Response) => {
     try {
-        
-        const existeEmail=await Usuario.findOne({
-            where:{
-                email:body.email
-            }
-        });
-
-        if (existeEmail){
-            return res.status(400).json({
-                msg: 'ya existe un usuario con el email'+body.email
-            });
-        }
-
-        const usuario=Usuario.create({...body});
-        
-       
-
+        const usuarios = await usuarioService.obtenerUsuarios();
+        res.json({ usuarios });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            msg:' ey ey pequeña no hagas eso',
-        })
+        res.status(500).json({ msg: 'Error al obtener usuarios' });
     }
-    
-}
-// modificar usuario
-export const putUsuario =async(req:Request, res:Response) =>{
-    const{id}=req.params;
-    const {body} = req;
+};
 
+export const getUsuario = async (req: Request, res: Response) => {
+    const { id } = req.params;
     try {
-        
-        const usuario= await Usuario.findByPk(id);
-        if(!usuario){
-            return res.status(404).json({
-                msg:'no existe un usuario con id '+ id
-            });
-        }else{
-            await usuario.update(body);
-
-            res.json(usuario);
+        const usuario = await usuarioService.obtenerUsuarioPorId(id);
+        if (usuario) {
+            res.json({ usuario });
+        } else {
+            res.status(404).json({ msg: 'No existe el id ' + id });
         }
-
-
-
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            msg:' ey ey pequeña no hagas eso',
-        })
+        res.status(500).json({ msg: 'Error al obtener el usuario' });
     }
-}
+};
 
-export const deleteUsuario = async (req:Request, res:Response) =>{
-    
-    const{id}=req.params;
-    const usuario=await Usuario.findByPk(id);
-    if(!usuario){
-        return res.status(404).json({
-            msg:'no existe un usuario con la id ' +id
-        });
-    } else {
-        await usuario.update({estado:false});
+export const postUsuario = async (req: Request, res: Response) => {
+    const { body } = req;
+    try {
+        const usuario = await usuarioService.crearUsuario(body);
         res.json(usuario);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ msg: error.message });
+        } else {
+            res.status(400).json({ msg: 'Unknown error' });
+        }
     }
+};
 
-}
+export const putUsuario = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { body } = req;
+    try {
+        const usuario = await usuarioService.actualizarUsuario(id, body);
+        res.json(usuario);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(404).json({ msg: error.message });
+        } else {
+            res.status(404).json({ msg: 'Unknown error' });
+        }
+    }
+};
+
+export const deleteUsuario = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const usuario = await usuarioService.desactivarUsuario(id);
+        res.json(usuario);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(404).json({ msg: error.message });
+        } else {
+            res.status(404).json({ msg: 'Unknown error' });
+        }
+    }
+};
