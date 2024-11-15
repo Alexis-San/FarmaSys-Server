@@ -1,6 +1,6 @@
 // src/controllers/usuario.controller.ts
 import { Request, Response } from 'express';
-import * as usuarioService from '../services/usuarios'
+import * as usuarioService from '../services/usuariosService'
 
 export const getUsuarios = async (req: Request, res: Response) => {
     try {
