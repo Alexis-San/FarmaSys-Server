@@ -2,10 +2,10 @@
 import express, {Application} from 'express';
 import cors from 'cors';
 import db from '../db/connection';
-import * as userRoutes from '../routes/usuario';
-import * as clientesRoutes from '../routes/cliente';
-import * as productosRoutes from '../routes/producto';
-import * as actuadoresRoutes from '../routes/actuador';
+import * as userRoutes from '../routes/usuarioRoute';
+import * as clientesRoutes from '../routes/clienteRoute';
+import * as productosRoutes from '../routes/productoRoute';
+import * as actuadoresRoutes from '../routes/actuadorRoute';
 class Server {
 
     private  app: Application;
