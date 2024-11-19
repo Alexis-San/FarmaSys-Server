@@ -1,55 +1,66 @@
-import { DataTypes } from 'sequelize';
-import db from '../db/connection';
-import actuador from './actuador';
-import proveedor from './proveedor';
-import categoria from './categoria';
+import { DataTypes } from "sequelize";
+import db from "../db/connection";
+import actuador from "./actuador";
+import proveedor from "./proveedor";
+import categoria from "./categoria";
+import laboratorio from "./laboratorio";
 
-
-
-const Producto = db.define('producto', {
-    id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-    },
-    codigo_cafapar: {
-        type: DataTypes.INTEGER,
-    },
-    nombre_comercial: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    presentacion: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    descripcion: {
-        type: DataTypes.TEXT,
-    },
-    precio_venta: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-    },
-    laboratorio: {
-        type: DataTypes.STRING,
-    },
-    condicion_venta: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    }, //nacional, importado
-    procedencia: {
-        type: DataTypes.STRING,
-    },
-    estado: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true
-    }
+const Producto = db.define("producto", {
+  id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  codigo_cafapar: {
+    type: DataTypes.INTEGER,
+  },
+  nombre_comercial: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  presentacion: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+  },
+  precio_venta: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+  },
+  condicion_venta: {
+    type: DataTypes.ENUM("BAJO RECETA", "VENTA LIBRE"),
+    allowNull: false,
+  }, //nacional, importado
+  procedencia: {
+    type: DataTypes.ENUM("NACIONAL", "IMPORTADO"),
+  },
+  estado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
 });
 
-const Producto_Actuador = db.define('producto_actuador', {}, { timestamps: true });
-const Producto_Proveedor = db.define('producto_proveedor', {}, { timestamps: true });
-const Producto_Categoria = db.define('producto_categoria', {}, { timestamps: true });
+const Producto_Actuador = db.define(
+  "producto_actuador",
+  {},
+  { timestamps: true, tableName: "producto_actuador" }
+);
+const Producto_Proveedor = db.define(
+  "producto_proveedor",
+  {},
+  { timestamps: true, tableName: "producto_proveedor" }
+);
+const Producto_Categoria = db.define(
+  "producto_categoria",
+  {},
+  { timestamps: true, tableName: "producto_categoria" }
+);
+
+Producto.belongsTo(laboratorio);
+laboratorio.hasMany(Producto);
 
 Producto.belongsToMany(actuador, { through: Producto_Actuador });
 actuador.belongsToMany(Producto, { through: Producto_Actuador });
