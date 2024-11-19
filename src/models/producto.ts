@@ -4,6 +4,7 @@ import actuador from "./actuador";
 import proveedor from "./proveedor";
 import categoria from "./categoria";
 import laboratorio from "./laboratorio";
+import inventario from "./inventario";
 
 const Producto = db.define("producto", {
   id: {
@@ -58,6 +59,9 @@ const Producto_Categoria = db.define(
   {},
   { timestamps: true, tableName: "producto_categoria" }
 );
+
+Producto.hasMany(inventario);
+inventario.belongsTo(Producto);
 
 Producto.belongsTo(laboratorio);
 laboratorio.hasMany(Producto);
