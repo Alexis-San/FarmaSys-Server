@@ -1,19 +1,25 @@
 import express, { Application } from "express";
 import cors from "cors";
 import db from "../db/connection";
-import * as userRoutes from "../routes/usuarioRoute";
-import * as clientesRoutes from "../routes/clienteRoute";
-import * as productosRoutes from "../routes/productoRoute";
 import * as actuadoresRoutes from "../routes/actuadorRoute";
+import * as categoriasRoutes from "../routes/categoriaRoute";
+import * as clientesRoutes from "../routes/clienteRoute";
+import * as laboratoriosRoutes from "../routes/laboratorioRoutes";
+import * as productosRoutes from "../routes/productoRoute";
+import * as userRoutes from "../routes/usuarioRoute";
+
+import * as proveedoresRoutes from "../routes/proveedorRoutes";
 class Server {
   private app: Application;
   private port: string;
   private apiPaths = {
-    usuarios: "/api/usuarios",
+    actuadores: "/api/actuadores",
+    categorias: "/api/categorias",
     clientes: "/api/clientes",
+    laboratorios: "/api/laboratorios",
     productos: "/api/productos",
-    proveedores: "api/proveedores",
-    actuadores: "api/actuadores",
+    usuarios: "/api/usuarios",
+    proveedores: "/api/proveedores",
   };
 
   constructor() {
@@ -56,11 +62,13 @@ class Server {
   }
 
   routes() {
-    this.app.use(this.apiPaths.usuarios, userRoutes.default);
-    this.app.use(this.apiPaths.clientes, clientesRoutes.default);
-    this.app.use(this.apiPaths.productos, productosRoutes.default);
-    this.app.use(this.apiPaths.proveedores, productosRoutes.default);
     this.app.use(this.apiPaths.actuadores, actuadoresRoutes.default);
+    this.app.use(this.apiPaths.categorias, categoriasRoutes.default);
+    this.app.use(this.apiPaths.clientes, clientesRoutes.default);
+    this.app.use(this.apiPaths.laboratorios, laboratoriosRoutes.default);
+    this.app.use(this.apiPaths.productos, productosRoutes.default);
+    this.app.use(this.apiPaths.usuarios, userRoutes.default);
+    this.app.use(this.apiPaths.proveedores, proveedoresRoutes.default);
   }
 }
 
