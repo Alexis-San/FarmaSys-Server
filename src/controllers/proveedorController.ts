@@ -21,9 +21,7 @@ export const getProveedorPorId = async (req: Request, res: Response) => {
   try {
     const proveedor = await obtenerProveedorPorId(id);
     if (!proveedor) {
-      return res
-        .status(404)
-        .json({ msg: `No existe un proveedor con el id ${id}` });
+      res.status(404).json({ msg: `No existe un proveedor con el id ${id}` });
     }
     res.json(proveedor);
   } catch (error) {

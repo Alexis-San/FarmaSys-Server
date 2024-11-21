@@ -21,9 +21,7 @@ export const getLaboratorioPorId = async (req: Request, res: Response) => {
   try {
     const laboratorio = await obtenerLaboratorioPorId(id);
     if (!laboratorio) {
-      return res
-        .status(404)
-        .json({ msg: `No existe un laboratorio con el id ${id}` });
+      res.status(404).json({ msg: `No existe un laboratorio con el id ${id}` });
     }
     res.json(laboratorio);
   } catch (error) {
