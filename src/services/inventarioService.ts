@@ -1,0 +1,98 @@
+import { Transaction, Model } from "sequelize";
+import db from "../db/connection";
+import inventario from "../models/inventario";
+import Producto from "../models/producto";
+//import { InventarioAttributes } from "../interfaces/inventarioInterfaz";
+import { ProductoAttributes } from "../interfaces/productoInterfaz";
+export const obtenerInventarios = async () => {
+  try {
+    return await inventario.findAll({
+      where: { estado: true },
+      include: ["producto"],
+    });
+  } catch (error) {
+    throw new Error("Error al obtener inventarios: " + error);
+  }
+};
+
+export const obtenerInventarioPorId = async (id: string) => {
+  try {
+    return await inventario.findOne({
+      where: { id, estado: true },
+      include: ["producto"],
+    });
+  } catch (error) {
+    throw new Error(`Error al obtener el inventario ${id}: ${error}`);
+  }
+};
+
+export const crearInventario = async (body: any) => {
+  const t: Transaction = await db.transaction();
+
+  try {
+    let productoId = body.productoId;
+
+    if (!productoId) {
+      const nuevoProducto = (await Producto.create(
+        {
+          nombre_comercial: body.nombre_comercial,
+          presentacion: body.presentacion,
+          precio_venta: body.precio_venta,
+          condicion_venta: body.condicion_venta || "VENTA LIBRE",
+          estado: true,
+        },
+        { transaction: t }
+      )) as Model<ProductoAttributes> & ProductoAttributes;
+
+      productoId = nuevoProducto.id;
+    }
+    // Crear inventario
+    const nuevoInventario = await inventario.create(
+      {
+        ...body,
+        productoId,
+        estado: true,
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+    return nuevoInventario;
+  } catch (error) {
+    await t.rollback();
+    throw new Error("Error al crear inventario: " + error);
+  }
+};
+
+export const actualizarInventario = async (id: string, body: any) => {
+  try {
+    const inventarioExistente = await inventario.findOne({
+      where: { id, estado: true },
+    });
+
+    if (!inventarioExistente) {
+      throw new Error(`No existe inventario con id ${id}`);
+    }
+
+    return await inventarioExistente.update(body);
+  } catch (error) {
+    throw new Error(`Error al actualizar inventario ${id}: ${error}`);
+  }
+};
+
+export const desactivarInventario = async (id: string) => {
+  try {
+    const resultado = await inventario.update(
+      { estado: false },
+      { where: { id, estado: true } }
+    );
+
+    if (resultado[0] === 0) {
+      throw new Error(`No existe inventario con id ${id}`);
+    }
+
+    return resultado;
+  } catch (error) {
+    throw new Error(`Error al desactivar inventario ${id}: ${error}`);
+  }
+};
