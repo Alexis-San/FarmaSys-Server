@@ -46,7 +46,7 @@ class Server {
       console.log("Database authenticated");
       console.log("Database synced");
       console.log("Database online");
-      await db.sync({ force: true }); //force true para borrar la base de datos
+      await db.sync({ force: false }); //force true para borrar la base de datos
     } catch (error) {
       throw new Error("Error al crear modelos " + error);
     }

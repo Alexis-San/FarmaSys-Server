@@ -1,10 +1,10 @@
 import Categoria from "../models/categoria";
 import { CategoriaAttributes } from "../interfaces/categoriasInterfaz";
-
 export const obtenerCategorias = async () => {
   try {
-    // Solo retorna categorias activas (estado = true)
+    // Solo retorna categorias activas (estado = true) con los campos id, nombre, descripcion
     return await Categoria.findAll({
+      attributes: ["id", "nombre", "descripcion"],
       where: { estado: true },
     });
   } catch (error) {
@@ -24,7 +24,16 @@ export const obtenerCategoriaPorId = async (id: string) => {
     throw new Error(`Error al obtener la categoria con id ${id}: ${error}`);
   }
 };
-
+export const obtenerCategoriasActivas = async () => {
+  try {
+    return await Categoria.findAll({
+      attributes: ["id", "nombre", "descripcion"],
+      where: { estado: true },
+    });
+  } catch (error) {
+    throw new Error("Error al obtener las categorias activas: " + error);
+  }
+};
 export const crearCategoria = async (body: any) => {
   try {
     const existeNombre = await Categoria.findOne({

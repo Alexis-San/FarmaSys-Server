@@ -2,18 +2,19 @@ import Actuador from "../models/actuador";
 import { ActuadorAttributes } from "../interfaces/actuadorInterfaz";
 export const obtenerActuadores = async () => {
   try {
-    // Solo retorna actuadores activos (estado = true)
+    // Solo retorna actuadores activos (estado = true) con los campos id y nombre
     return await Actuador.findAll({
+      attributes: ["id", "nombre"],
       where: { estado: true },
     });
   } catch (error) {
     throw new Error("Error al obtener los actuadores: " + error);
   }
 };
-
 export const obtenerActuadorPorId = async (id: string) => {
   try {
     return await Actuador.findOne({
+      attributes: ["id", "nombre"],
       where: {
         id,
         estado: true,
