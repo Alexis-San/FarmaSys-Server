@@ -1,9 +1,9 @@
 import Proveedor from "../models/proveedor";
 import { ProveedorAttributes } from "../interfaces/proveedorInterfaz";
-
 export const obtenerProveedores = async () => {
   try {
     return await Proveedor.findAll({
+      attributes: ["id", "nombre", "descripcion", "telefono"],
       where: { estado: true },
     });
   } catch (error) {
@@ -17,6 +17,7 @@ export const obtenerProveedores = async () => {
 export const obtenerProveedorPorId = async (id: string) => {
   try {
     return await Proveedor.findOne({
+      attributes: ["id", "nombre", "descripcion", "telefono"],
       where: {
         id,
         estado: true,

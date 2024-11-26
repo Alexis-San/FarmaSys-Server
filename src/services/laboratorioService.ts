@@ -1,9 +1,9 @@
 import Laboratorio from "../models/laboratorio";
 import { LaboratorioAttributes } from "../interfaces/laboratorioInterfaz";
-
 export const obtenerLaboratorios = async () => {
   try {
     return await Laboratorio.findAll({
+      attributes: ["id", "nombre"],
       where: { estado: true },
     });
   } catch (error) {
@@ -17,6 +17,7 @@ export const obtenerLaboratorios = async () => {
 export const obtenerLaboratorioPorId = async (id: string) => {
   try {
     return await Laboratorio.findOne({
+      attributes: ["id", "nombre"],
       where: {
         id,
         estado: true,
