@@ -1,6 +1,8 @@
 import { DataTypes } from "sequelize";
 import db from "../db/connection";
 import producto from "./producto";
+import Venta from "./ventas";
+import VentaDetalle from "./ventaDetalle";
 
 const inventario = db.define("inventario", {
   id: {
@@ -35,6 +37,15 @@ const inventario = db.define("inventario", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+});
+
+inventario.belongsToMany(Venta, {
+  through: VentaDetalle,
+  foreignKey: "id_producto_inventario",
+});
+Venta.belongsToMany(inventario, {
+  through: VentaDetalle,
+  foreignKey: "id_venta",
 });
 
 export default inventario;

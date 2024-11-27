@@ -14,7 +14,7 @@ const Cliente = db.define("cliente", {
   },
   apellido: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   email: {
     type: DataTypes.STRING,
@@ -27,13 +27,24 @@ const Cliente = db.define("cliente", {
   tipo_cliente: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: "normal",
+    defaultValue: "Generico",
   },
   //este campo es para eliminacion logica
   estado: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+});
+// Insert a generic client
+Cliente.count().then((count) => {
+  if (count === 0) {
+    Cliente.create({
+      nombre: "Cliente",
+      apellido: "Generico",
+      tipo_cliente: "Generico",
+      estado: true,
+    });
+  }
 });
 
 export default Cliente;
