@@ -1,11 +1,22 @@
 import Usuario from "../models/usuario";
 import { UsuarioAttributes } from "../interfaces/usuarioInterfaz";
 export const obtenerUsuarios = async () => {
-  return await Usuario.findAll();
+  return await Usuario.findAll({
+    where: {
+      estado: true,
+    },
+    attributes: ["id", "nombre", "email", "rol"],
+  });
 };
 
 export const obtenerUsuarioPorId = async (id: string) => {
-  return await Usuario.findByPk(id);
+  return await Usuario.findOne({
+    where: {
+      id,
+      estado: true,
+    },
+    attributes: ["id", "nombre", "email", "rol"],
+  });
 };
 
 export const crearUsuario = async (body: any) => {
