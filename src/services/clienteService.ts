@@ -1,3 +1,5 @@
+//falta agregar el campo ci a la consulta sql y devolver un mensaje si se repite el ci
+
 import Cliente from "../models/cliente";
 export const getClientes = async () => {
   return await Cliente.findAll({
