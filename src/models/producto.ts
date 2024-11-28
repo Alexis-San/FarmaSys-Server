@@ -69,16 +69,22 @@ inventario.belongsTo(Producto, {
   foreignKey: "productoId",
   targetKey: "id",
 });
-
 // Definición del modelo Laboratorio
 Producto.belongsTo(laboratorio, {
-  foreignKey: "laboratorioId",
+  foreignKey: {
+    name: "laboratorioId",
+    allowNull: true,
+  },
   targetKey: "id",
 });
 laboratorio.hasMany(Producto, {
-  foreignKey: "laboratorioId",
+  foreignKey: {
+    name: "laboratorioId",
+    allowNull: true,
+  },
   sourceKey: "id",
 });
+
 Producto.belongsToMany(actuador, { through: Producto_Actuador });
 actuador.belongsToMany(Producto, { through: Producto_Actuador });
 

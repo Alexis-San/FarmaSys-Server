@@ -21,9 +21,8 @@ export const getProductoPorId = async (req: Request, res: Response) => {
   try {
     const producto = await obtenerProductoPorId(id);
     if (!producto) {
-      return res
-        .status(404)
-        .json({ msg: `No existe un producto con el id ${id}` });
+      res.status(404).json({ msg: `No existe un producto con el id ${id}` });
+      return;
     }
     res.json(producto);
   } catch (error) {
@@ -35,11 +34,21 @@ export const getProductoPorId = async (req: Request, res: Response) => {
 
 export const postProducto = async (req: Request, res: Response) => {
   const body = req.body;
+
+  if (!body || Object.keys(body).length === 0) {
+    res.status(400).json({ msg: "El cuerpo de la solicitud está vacío" });
+    return;
+  }
+
   try {
-    const producto = await crearProducto(body);
-    res.json(producto);
+    await crearProducto(body);
+    res.json({ msg: "ok" });
   } catch (error) {
-    res.status(500).json({ msg: "Error al crear el producto", error });
+    if (error instanceof Error) {
+      res.status(400).json({ msg: error.message });
+    } else {
+      res.status(400).json({ msg: "Unknown error" });
+    }
   }
 };
 

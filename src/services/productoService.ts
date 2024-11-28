@@ -41,7 +41,7 @@ export const crearProducto = async (body: any) => {
 
     return await Producto.create({ ...body, estado: true });
   } catch (error) {
-    throw new Error("Error al crear el producto: " + error);
+    throw new Error("Error al crear el productoo: " + error);
   }
 };
 
