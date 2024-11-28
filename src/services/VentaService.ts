@@ -1,18 +1,24 @@
 import Venta from "../models/ventas";
 import VentaDetalle from "../models/ventaDetalle";
-import Cliente from "../models/cliente";
-import Usuario from "../models/usuario";
-import { VentaAttributes } from "../interfaces/ventaInterfaz";
 import { VentaDetalleAttributes } from "../interfaces/ventaDetalleInterfaz";
+import { VentaAttributes } from "../interfaces/ventaInterfaz";
 import db from "../db/connection";
+import { LoginAttributes } from "../interfaces/loginInterface";
+import { obtenerUsuarioLogeado } from "./loginService";
 
-export const hacerVenta = async (items: VentaDetalleAttributes[]) => {
+export const hacerVenta = async (
+  items: VentaDetalleAttributes[],
+  id_cliente?: number
+) => {
   const transaction = await db.transaction();
   try {
+    const usuarioLogeado: LoginAttributes = await obtenerUsuarioLogeado();
+    const clienteId = id_cliente || 1;
+
     const nuevaVenta = await Venta.create(
       {
-        id_cliente: null,
-        id_usuario: null,
+        id_cliente: clienteId,
+        id_usuario: usuarioLogeado.id,
         descuento: 0,
         monto_final: 0,
       },
