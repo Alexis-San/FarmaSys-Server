@@ -24,16 +24,7 @@ export const obtenerCategoriaPorId = async (id: string) => {
     throw new Error(`Error al obtener la categoria con id ${id}: ${error}`);
   }
 };
-export const obtenerCategoriasActivas = async () => {
-  try {
-    return await Categoria.findAll({
-      attributes: ["id", "nombre", "descripcion"],
-      where: { estado: true },
-    });
-  } catch (error) {
-    throw new Error("Error al obtener las categorias activas: " + error);
-  }
-};
+
 export const crearCategoria = async (body: any) => {
   try {
     const existeNombre = await Categoria.findOne({
