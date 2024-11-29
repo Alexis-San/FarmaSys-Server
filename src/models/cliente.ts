@@ -39,6 +39,7 @@ const Cliente = db.define("cliente", {
     defaultValue: true,
   },
 });
+/*
 // Insert a generic client
 Cliente.count().then((count) => {
   if (count === 0) {
@@ -50,5 +51,5 @@ Cliente.count().then((count) => {
     });
   }
 });
-
+*/
 export default Cliente;

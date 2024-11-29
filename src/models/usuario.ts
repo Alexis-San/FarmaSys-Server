@@ -34,7 +34,7 @@ const Usuario = db.define("Usuario", {
     defaultValue: true,
   },
 });
-
+/*
 Usuario.count().then((count) => {
   if (count === 0) {
     Usuario.create({
@@ -47,5 +47,5 @@ Usuario.count().then((count) => {
     });
   }
 });
-
+*/
 export default Usuario;
