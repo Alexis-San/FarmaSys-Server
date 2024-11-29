@@ -1,10 +1,20 @@
 import Producto from "../models/producto";
 import { ProductoAttributes } from "../interfaces/productoInterfaz";
-
 export const obtenerProductos = async () => {
   try {
     return await Producto.findAll({
       where: { estado: true },
+      attributes: [
+        "id",
+        "codigo_cafapar",
+        "nombre_comercial",
+        "presentacion",
+        "descripcion",
+        "precio_venta",
+        "condicion_venta",
+        "procedencia",
+        "laboratorioId",
+      ],
     });
   } catch (error) {
     throw new Error("Error al obtener los productos: " + error);
@@ -18,6 +28,17 @@ export const obtenerProductoPorId = async (id: string) => {
         id,
         estado: true,
       },
+      attributes: [
+        "id",
+        "codigo_cafapar",
+        "nombre_comercial",
+        "presentacion",
+        "descripcion",
+        "precio_venta",
+        "condicion_venta",
+        "procedencia",
+        "laboratorioId",
+      ],
     });
   } catch (error) {
     throw new Error(`Error al obtener el producto con id ${id}: ${error}`);

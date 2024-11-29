@@ -26,15 +26,26 @@ export const getInventario = async (req: Request, res: Response) => {
     return;
   }
 };
-
 export const postInventario = async (req: Request, res: Response) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    res
+      .status(400)
+      .json({ msg: "El cuerpo de la solicitud no puede estar vacío" });
+    return;
+  }
+
   try {
     const inventario = await inventarioService.crearInventario(req.body);
     res.status(201).json(inventario);
     return;
   } catch (error) {
-    res.status(400).json({ msg: (error as Error).message });
-    return;
+    if (error instanceof Error) {
+      res.status(404).json({ msg: error.message });
+    } else {
+      res.status(500).json({
+        msg: "Error al actualizar el cliente",
+      });
+    }
   }
 };
 
