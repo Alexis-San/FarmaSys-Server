@@ -2,22 +2,60 @@ import { Transaction, Model } from "sequelize";
 import db from "../db/connection";
 import inventario from "../models/inventario";
 import Producto from "../models/producto";
-//import { InventarioAttributes } from "../interfaces/inventarioInterfaz";
+import { InventarioAttributes } from "../interfaces/inventarioInterfaz";
 import { ProductoAttributes } from "../interfaces/productoInterfaz";
+
 export const obtenerInventarios = async () => {
   try {
     return await inventario.findAll({
+      attributes: [
+        "id",
+        "precio_venta",
+        "precio_compra",
+        "descripcion",
+        "fecha_vencimiento",
+        "stock",
+        "lote",
+        "estado",
+        "productoId",
+      ],
       where: { estado: true },
-      include: ["producto"],
+      include: [
+        {
+          model: Producto,
+          as: "producto",
+          attributes: [
+            "id",
+            "codigo_cafapar",
+            "nombre_comercial",
+            "presentacion",
+            "descripcion",
+            "precio_venta",
+            "condicion_venta",
+            "procedencia",
+            "laboratorioId",
+          ],
+        },
+      ],
     });
   } catch (error) {
-    throw new Error("Error al obtener inventarios: " + error);
+    throw new Error("Error al obtener inventarios con detalles: " + error);
   }
 };
 
 export const obtenerInventarioPorId = async (id: string) => {
   try {
     return await inventario.findOne({
+      attributes: [
+        "id",
+        "precio_venta",
+        "precio_compra",
+        "descripcion",
+        "fecha_vencimiento",
+        "stock",
+        "lote",
+        "productoId",
+      ],
       where: { id, estado: true },
       include: ["producto"],
     });
@@ -26,7 +64,19 @@ export const obtenerInventarioPorId = async (id: string) => {
   }
 };
 
-export const crearInventario = async (body: any) => {
+export const crearInventario = async (body: InventarioAttributes) => {
+  try {
+    const nuevoInventario = await inventario.create({
+      ...body,
+      estado: true,
+    });
+    return nuevoInventario;
+  } catch (error) {
+    throw new Error("Error al crear el inventario: " + error);
+  }
+};
+
+export const crearProductoInventario = async (body: any) => {
   const t: Transaction = await db.transaction();
 
   try {
