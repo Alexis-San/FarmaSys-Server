@@ -60,11 +60,30 @@ const Producto_Categoria = db.define(
   { timestamps: true, tableName: "producto_categoria" }
 );
 
-Producto.hasMany(inventario);
-inventario.belongsTo(Producto);
-
-Producto.belongsTo(laboratorio);
-laboratorio.hasMany(Producto);
+// Definición del modelo Producto
+Producto.hasMany(inventario, {
+  foreignKey: "productoId",
+  sourceKey: "id",
+});
+inventario.belongsTo(Producto, {
+  foreignKey: "productoId",
+  targetKey: "id",
+});
+// Definición del modelo Laboratorio
+Producto.belongsTo(laboratorio, {
+  foreignKey: {
+    name: "laboratorioId",
+    allowNull: true,
+  },
+  targetKey: "id",
+});
+laboratorio.hasMany(Producto, {
+  foreignKey: {
+    name: "laboratorioId",
+    allowNull: true,
+  },
+  sourceKey: "id",
+});
 
 Producto.belongsToMany(actuador, { through: Producto_Actuador });
 actuador.belongsToMany(Producto, { through: Producto_Actuador });
