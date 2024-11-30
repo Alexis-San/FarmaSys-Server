@@ -35,9 +35,12 @@ export const obtenerProveedorPorId = async (id: string) => {
 
 export const crearProveedor = async (body: any) => {
   try {
+    // Convertir el nombre a mayúsculas
+    const nombreMayusculas = body.nombre.toUpperCase();
+
     const existeNombre = await Proveedor.findOne({
       where: {
-        nombre: body.nombre,
+        nombre: nombreMayusculas,
         estado: true,
       },
     });
@@ -46,7 +49,12 @@ export const crearProveedor = async (body: any) => {
       throw new Error(`Ya existe un proveedor con el nombre ${body.nombre}`);
     }
 
-    return await Proveedor.create({ ...body, estado: true });
+    // Crear el proveedor con el nombre en mayúsculas
+    return await Proveedor.create({
+      ...body,
+      nombre: nombreMayusculas,
+      estado: true,
+    });
   } catch (error) {
     if (error instanceof Error) {
       throw new Error("Error al crear el proveedor: " + error.message);
