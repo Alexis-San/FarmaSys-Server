@@ -1,5 +1,7 @@
+import { Op } from "sequelize";
 import Producto from "../models/producto";
 import { ProductoAttributes } from "../interfaces/productoInterfaz";
+
 export const obtenerProductos = async () => {
   try {
     return await Producto.findAll({
@@ -18,6 +20,38 @@ export const obtenerProductos = async () => {
     });
   } catch (error) {
     throw new Error("Error al obtener los productos: " + error);
+  }
+};
+
+export const buscarProductos = async (termino: string) => {
+  try {
+    const terminoMayusculas = termino.toUpperCase();
+    return await Producto.findAll({
+      where: {
+        [Op.and]: [
+          { estado: true },
+          {
+            [Op.or]: [
+              { nombre_comercial: { [Op.like]: `%${terminoMayusculas}%` } },
+              { presentacion: { [Op.like]: `%${terminoMayusculas}%` } },
+            ],
+          },
+        ],
+      },
+      attributes: [
+        "id",
+        "codigo_cafapar",
+        "nombre_comercial",
+        "presentacion",
+        "descripcion",
+        "precio_venta",
+        "condicion_venta",
+        "procedencia",
+        "laboratorioId",
+      ],
+    });
+  } catch (error) {
+    throw new Error(`Error al buscar productos: ${error}`);
   }
 };
 
