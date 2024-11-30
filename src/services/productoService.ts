@@ -1,5 +1,7 @@
+import { Op } from "sequelize";
 import Producto from "../models/producto";
 import { ProductoAttributes } from "../interfaces/productoInterfaz";
+
 export const obtenerProductos = async () => {
   try {
     return await Producto.findAll({
@@ -18,6 +20,38 @@ export const obtenerProductos = async () => {
     });
   } catch (error) {
     throw new Error("Error al obtener los productos: " + error);
+  }
+};
+
+export const buscarProductos = async (termino: string) => {
+  try {
+    const terminoMayusculas = termino.toUpperCase();
+    return await Producto.findAll({
+      where: {
+        [Op.and]: [
+          { estado: true },
+          {
+            [Op.or]: [
+              { nombre_comercial: { [Op.like]: `%${terminoMayusculas}%` } },
+              { presentacion: { [Op.like]: `%${terminoMayusculas}%` } },
+            ],
+          },
+        ],
+      },
+      attributes: [
+        "id",
+        "codigo_cafapar",
+        "nombre_comercial",
+        "presentacion",
+        "descripcion",
+        "precio_venta",
+        "condicion_venta",
+        "procedencia",
+        "laboratorioId",
+      ],
+    });
+  } catch (error) {
+    throw new Error(`Error al buscar productos: ${error}`);
   }
 };
 
@@ -47,9 +81,18 @@ export const obtenerProductoPorId = async (id: string) => {
 
 export const crearProducto = async (body: any) => {
   try {
+    // Convertir los campos de texto a mayúsculas
+    const nombreComercialMayusculas = body.nombre_comercial.toUpperCase();
+    const presentacionMayusculas = body.presentacion.toUpperCase();
+    const descripcionMayusculas = body.descripcion
+      ? body.descripcion.toUpperCase()
+      : null;
+    const condicionVentaMayusculas = body.condicion_venta.toUpperCase();
+    const procedenciaMayusculas = body.procedencia.toUpperCase();
+
     const existeProducto = await Producto.findOne({
       where: {
-        nombre_comercial: body.nombre_comercial,
+        nombre_comercial: nombreComercialMayusculas,
         estado: true,
       },
     });
@@ -60,9 +103,17 @@ export const crearProducto = async (body: any) => {
       );
     }
 
-    return await Producto.create({ ...body, estado: true });
+    return await Producto.create({
+      ...body,
+      nombre_comercial: nombreComercialMayusculas,
+      presentacion: presentacionMayusculas,
+      descripcion: descripcionMayusculas,
+      condicion_venta: condicionVentaMayusculas,
+      procedencia: procedenciaMayusculas,
+      estado: true,
+    });
   } catch (error) {
-    throw new Error("Error al crear el productoo: " + error);
+    throw new Error("Error al crear el producto: " + error);
   }
 };
 

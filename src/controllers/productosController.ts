@@ -5,6 +5,7 @@ import {
   crearProducto,
   actualizarProducto,
   desactivarProducto,
+  buscarProductos,
 } from "../services/productoService";
 
 export const getProductos = async (req: Request, res: Response) => {
@@ -13,6 +14,27 @@ export const getProductos = async (req: Request, res: Response) => {
     res.json(productos);
   } catch (error) {
     res.status(500).json({ msg: "Error al obtener los productos", error });
+  }
+};
+
+export const buscarProductosController = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { termino } = req.query;
+    if (!termino || typeof termino !== "string") {
+      res.status(400).json({
+        msg: "El término de búsqueda es requerido",
+      });
+      return;
+    }
+    const productos = await buscarProductos(termino);
+    res.json(productos);
+  } catch (error) {
+    res.status(500).json({
+      msg: error instanceof Error ? error.message : "Error al buscar productos",
+    });
   }
 };
 
