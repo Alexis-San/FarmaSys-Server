@@ -8,6 +8,23 @@ export const getClientes = async (req: Request, res: Response) => {
 };
 
 // buscar cliente por id (pk)
+// Buscar clientes por nombre, apellido o ci
+export const buscarClientes = async (req: Request, res: Response) => {
+  const { nombre, apellido, ci } = req.query;
+  try {
+    const clientes = await clienteService.buscarClientes(
+      nombre as string,
+      apellido as string,
+      ci as string
+    );
+    res.json({ clientes });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Error al buscar clientes",
+    });
+  }
+};
+
 export const getCliente = async (req: Request, res: Response) => {
   const { id } = req.params;
   const cliente = await clienteService.getCliente(id);
