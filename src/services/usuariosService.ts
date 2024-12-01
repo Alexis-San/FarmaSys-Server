@@ -5,7 +5,7 @@ export const obtenerUsuarios = async () => {
     where: {
       estado: true,
     },
-    attributes: ["id", "nombre", "email", "rol"],
+    attributes: ["id", "nombre", "email", "rol", "logeado"],
   });
 };
 
@@ -15,7 +15,7 @@ export const obtenerUsuarioPorId = async (id: string) => {
       id,
       estado: true,
     },
-    attributes: ["id", "nombre", "email", "rol"],
+    attributes: ["id", "nombre", "email", "rol", "logeado"],
   });
 };
 
