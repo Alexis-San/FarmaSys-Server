@@ -1,4 +1,4 @@
-import { Transaction, Model } from "sequelize";
+import { Transaction, Model, Op } from "sequelize";
 import db from "../db/connection";
 import inventario from "../models/inventario";
 import Producto from "../models/producto";
@@ -42,6 +42,50 @@ export const obtenerInventarios = async () => {
     throw new Error("Error al obtener inventarios con detalles: " + error);
   }
 };
+
+export async function obtenerInventarioConProductos(busqueda: string) {
+  return await inventario.findAll({
+    attributes: [
+      "id",
+      "precio_venta",
+      "precio_compra",
+      "descripcion",
+      "fecha_vencimiento",
+      "stock",
+      "lote",
+      "estado",
+      "productoId",
+    ],
+    where: {
+      estado: true,
+      [Op.or]: [
+        { precio_compra: { [Op.like]: `%${busqueda}%` } },
+        { fecha_vencimiento: { [Op.like]: `%${busqueda}%` } },
+        { stock: { [Op.like]: `%${busqueda}%` } },
+        { lote: { [Op.like]: `%${busqueda}%` } },
+        { "$producto.nombre_comercial$": { [Op.like]: `%${busqueda}%` } },
+        { "$producto.codigo_cafapar$": { [Op.like]: `%${busqueda}%` } },
+        { "$producto.presentacion$": { [Op.like]: `%${busqueda}%` } },
+      ],
+    },
+    include: [
+      {
+        model: Producto,
+        attributes: [
+          "id",
+          "codigo_cafapar",
+          "nombre_comercial",
+          "presentacion",
+          "descripcion",
+          "precio_venta",
+          "condicion_venta",
+          "procedencia",
+          "laboratorioId",
+        ],
+      },
+    ],
+  });
+}
 
 export const obtenerInventarioPorId = async (id: string) => {
   try {
