@@ -9,7 +9,7 @@ import {
 } from "../controllers/productosController";
 
 const router = Router();
-router.get('/buscar', buscarProductosController);
+router.get("/buscar", buscarProductosController);
 router.get("/", getProductos);
 router.get("/:id", getProductoPorId);
 router.post("/", postProducto);

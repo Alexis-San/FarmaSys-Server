@@ -26,6 +26,24 @@ export const getInventario = async (req: Request, res: Response) => {
     return;
   }
 };
+
+export const getInventarioConProductos = async (
+  req: Request,
+  res: Response
+) => {
+  const { busqueda } = req.query;
+  try {
+    const inventarios = await inventarioService.obtenerInventarioConProductos(
+      (busqueda as string)?.toUpperCase()
+    );
+    res.json(inventarios);
+    return;
+  } catch (error) {
+    res.status(500).json({ msg: (error as Error).message });
+    return;
+  }
+};
+
 export const postInventario = async (req: Request, res: Response) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     res

@@ -5,10 +5,12 @@ import {
   postInventario,
   putInventario,
   deleteInventario,
+  getInventarioConProductos,
 } from "../controllers/inventarioController";
 
 const router = Router();
-
+// Ruta para buscar inventarios con productos
+router.get("/buscar", getInventarioConProductos);
 // Ruta para obtener todos los inventarios
 router.get("/", getInventarios);
 
