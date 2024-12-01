@@ -1,5 +1,6 @@
 import Venta from "../models/ventas";
 import VentaDetalle from "../models/ventaDetalle";
+import inventario from "../models/inventario";
 import { VentaDetalleAttributes } from "../interfaces/ventaDetalleInterfaz";
 import { VentaAttributes } from "../interfaces/ventaInterfaz";
 import db from "../db/connection";
@@ -39,6 +40,13 @@ export const hacerVenta = async (
         { transaction }
       );
       monto_final += (ventaDetalle as any).monto_total; // Y aquí también
+      await inventario.update(
+        { stock: db.literal(`stock - ${item.cantidad}`) },
+        {
+          where: { id: item.id_producto_inventario },
+          transaction,
+        }
+      );
     }
 
     await nuevaVenta.update({ monto_final }, { transaction });
