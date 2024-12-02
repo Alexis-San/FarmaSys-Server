@@ -10,7 +10,7 @@ import * as inventarioRoutes from "../routes/inventarioRoute";
 import * as userRoutes from "../routes/usuarioRoute";
 import * as proveedoresRoutes from "../routes/proveedorRoutes";
 import * as loginRoutes from "../routes/loginRoute";
-
+import * as ventasRoutes from "../routes/ventaRoute";
 class Server {
   private app: Application;
   private port: string;
@@ -24,6 +24,7 @@ class Server {
     usuarios: "/api/usuarios",
     proveedores: "/api/proveedores",
     login: "/api/login",
+    ventas: "/api/ventas",
   };
 
   constructor() {
@@ -75,6 +76,7 @@ class Server {
     this.app.use(this.apiPaths.usuarios, userRoutes.default);
     this.app.use(this.apiPaths.proveedores, proveedoresRoutes.default);
     this.app.use(this.apiPaths.login, loginRoutes.default);
+    this.app.use(this.apiPaths.ventas, ventasRoutes.default);
   }
 }
 
