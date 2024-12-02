@@ -44,6 +44,23 @@ export const obtenerInventarios = async () => {
 };
 
 export async function obtenerInventarioConProductos(busqueda: string) {
+  const conditions = [];
+
+  // Manejo de campos numéricos
+  const numericValue = !isNaN(Number(busqueda)) ? Number(busqueda) : null;
+  if (numericValue !== null) {
+    conditions.push({ precio_compra: numericValue }, { stock: numericValue });
+  }
+
+  // Manejo de campos de texto y fecha
+  conditions.push(
+    { fecha_vencimiento: { [Op.like]: `%${busqueda}%` } },
+    { lote: { [Op.like]: `%${busqueda}%` } },
+    { "$producto.nombre_comercial$": { [Op.like]: `%${busqueda}%` } },
+    { "$producto.codigo_cafapar$": { [Op.like]: `%${busqueda}%` } },
+    { "$producto.presentacion$": { [Op.like]: `%${busqueda}%` } }
+  );
+
   return await inventario.findAll({
     attributes: [
       "id",
@@ -58,15 +75,7 @@ export async function obtenerInventarioConProductos(busqueda: string) {
     ],
     where: {
       estado: true,
-      [Op.or]: [
-        { precio_compra: { [Op.like]: `%${busqueda}%` } },
-        { fecha_vencimiento: { [Op.like]: `%${busqueda}%` } },
-        { stock: { [Op.like]: `%${busqueda}%` } },
-        { lote: { [Op.like]: `%${busqueda}%` } },
-        { "$producto.nombre_comercial$": { [Op.like]: `%${busqueda}%` } },
-        { "$producto.codigo_cafapar$": { [Op.like]: `%${busqueda}%` } },
-        { "$producto.presentacion$": { [Op.like]: `%${busqueda}%` } },
-      ],
+      [Op.or]: conditions,
     },
     include: [
       {

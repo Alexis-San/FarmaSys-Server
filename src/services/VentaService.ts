@@ -1,59 +1,97 @@
 import Venta from "../models/ventas";
 import VentaDetalle from "../models/ventaDetalle";
-import inventario from "../models/inventario";
-import { VentaDetalleAttributes } from "../interfaces/ventaDetalleInterfaz";
-import { VentaAttributes } from "../interfaces/ventaInterfaz";
+import Inventario from "../models/inventario";
 import db from "../db/connection";
-import { LoginAttributes } from "../interfaces/loginInterface";
-import { obtenerUsuarioLogeado } from "./loginService";
+import { VentaAttributes } from "../interfaces/ventaInterfaz";
+import { VentaDetalleAttributes } from "../interfaces/ventaDetalleInterfaz";
+// ...otras importaciones necesarias...
 
-export const hacerVenta = async (
-  items: VentaDetalleAttributes[],
-  id_cliente?: number
+// Función para insertar una nueva venta con tipos actualizados
+export const insertarVenta = async (
+  id_cliente: number,
+  id_usuario?: number
+): Promise<Venta> => {
+  try {
+    const nuevaVenta = await Venta.create({
+      id_cliente,
+      id_usuario: id_usuario || 1, // Si id_usuario es undefined, usa 1
+      monto_final: 0, // Requerido por la interfaz
+      // id_venta es autoincremental, no necesita ser proporcionado
+    });
+    return nuevaVenta;
+  } catch (error: any) {
+    // Log del error para debugging
+    console.error("Error al crear la venta:", error);
+    throw new Error(
+      `Error al crear la venta: ${error.message || "Error desconocido"}`
+    );
+  }
+};
+
+// Función para insertar detalles de la venta y actualizar el inventario con transacciones
+/**
+ * Inserta los detalles de una venta en la base de datos y actualiza el inventario correspondiente
+ * @param idVenta - ID de la venta a la que se asociarán los detalles
+ * @param detalles - Array de detalles de venta que contiene información de productos y cantidades
+ * @returns Promise que resuelve a true si la operación fue exitosa
+ * @throws Error si ocurre algún problema durante la inserción o actualización
+ *
+ * @example
+ * const detalles = [{
+ *   id_producto_inventario: 1,
+ *   precio: 10.99,
+ *   cantidad: 2
+ * }];
+ * await insertarDetallesVenta(1, detalles);
+ */
+export const insertarDetallesVenta = async (
+  idVenta: number,
+  detalles: VentaDetalleAttributes[]
 ) => {
   const transaction = await db.transaction();
   try {
-    const usuarioLogeado: LoginAttributes = await obtenerUsuarioLogeado();
-    const clienteId = id_cliente || 1;
-
-    const nuevaVenta = await Venta.create(
-      {
-        id_cliente: clienteId,
-        id_usuario: usuarioLogeado.id,
-        descuento: 0,
-        monto_final: 0,
-      },
-      { transaction }
-    );
-
-    let monto_final = 0;
-
-    for (const item of items) {
-      const ventaDetalle = await VentaDetalle.create(
+    for (const detalle of detalles) {
+      // Validar existencia de producto y stock suficiente
+      const producto = await Inventario.findByPk(
+        detalle.id_producto_inventario,
         {
-          id_venta: (nuevaVenta as any).id_venta, // Aplicando 'as any' aquí
-          id_producto_inventario: item.id_producto_inventario,
-          precio: item.precio,
-          cantidad: item.cantidad,
-          monto_total: item.precio * item.cantidad,
-        },
-        { transaction }
-      );
-      monto_final += (ventaDetalle as any).monto_total; // Y aquí también
-      await inventario.update(
-        { stock: db.literal(`stock - ${item.cantidad}`) },
-        {
-          where: { id: item.id_producto_inventario },
           transaction,
         }
       );
+
+      if (!producto) {
+        throw new Error(
+          `Producto con ID ${detalle.id_producto_inventario} no encontrado`
+        );
+      }
+
+      if (producto.stock < detalle.cantidad) {
+        throw new Error(
+          `Stock insuficiente para el producto ID ${detalle.id_producto_inventario}`
+        );
+      }
+
+      // Insertar detalle de venta
+      await VentaDetalle.create(
+        {
+          id_venta: idVenta,
+          id_producto_inventario: detalle.id_producto_inventario,
+          precio: detalle.precio,
+          cantidad: detalle.cantidad,
+          monto_total: detalle.precio * detalle.cantidad,
+        },
+        { transaction }
+      );
+
+      // Actualizar inventario
+      producto.stock -= detalle.cantidad;
+      await producto.save({ transaction });
     }
-
-    await nuevaVenta.update({ monto_final }, { transaction });
-
+    // Confirmar transacción
     await transaction.commit();
-    return nuevaVenta;
+    return true;
   } catch (error) {
+    // Revertir transacción en caso de error
     await transaction.rollback();
     throw error;
   }
