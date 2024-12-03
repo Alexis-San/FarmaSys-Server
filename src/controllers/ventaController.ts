@@ -8,7 +8,7 @@ export const crearVenta = async (req: Request, res: Response) => {
     const nuevaVenta = await insertarVenta(id_cliente, id_usuario);
 
     res.status(201).json({
-      msg: "Venta creada exitosamente",
+      //msg: "Venta creada exitosamente",
       venta: nuevaVenta,
     });
   } catch (error) {
