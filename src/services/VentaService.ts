@@ -49,6 +49,7 @@ export const insertarDetallesVenta = async (
   detalles: VentaDetalleAttributes[]
 ) => {
   const transaction = await db.transaction();
+  let montoFinal = 0;
   try {
     for (const detalle of detalles) {
       // Validar existencia de producto y stock suficiente
@@ -71,6 +72,9 @@ export const insertarDetallesVenta = async (
         );
       }
 
+      // Calcular el monto total del detalle
+      const montoTotalDetalle = detalle.precio * detalle.cantidad;
+
       // Insertar detalle de venta
       await VentaDetalle.create(
         {
@@ -86,7 +90,17 @@ export const insertarDetallesVenta = async (
       // Actualizar inventario
       producto.stock -= detalle.cantidad;
       await producto.save({ transaction });
+      // Acumular el monto total
+      montoFinal += montoTotalDetalle;
     }
+
+    // Actualizar el monto_final en la tabla de ventas
+    const venta = await Venta.findByPk(idVenta, { transaction });
+    if (!venta) {
+      throw new Error(`Venta con ID ${idVenta} no encontrada`);
+    }
+    venta.monto_final = montoFinal;
+    await venta.save({ transaction });
     // Confirmar transacción
     await transaction.commit();
     return true;
