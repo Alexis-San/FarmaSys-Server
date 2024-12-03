@@ -39,7 +39,10 @@ export const loginUsuario = async (email: string, password: string) => {
 export const obtenerUsuarioLogeado = async (): Promise<LoginAttributes> => {
   try {
     const usuario = await Usuario.findOne({
-      where: { estado: true },
+      where: {
+        estado: true,
+        logeado: true,
+      },
       attributes: ["id", "email", "password", "logeado"],
     });
 
