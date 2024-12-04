@@ -4,6 +4,8 @@ import {
   getVentasUltimoMes,
   getHistorialVentasCliente,
   filtrarVentasPorCliente,
+  //getTopProductosVendidos,
+  getMontosTresMeses,
 } from "../services/informesService";
 
 export const obtenerVentasInforme = async (req: Request, res: Response) => {
@@ -72,6 +74,44 @@ export const obtenerVentasFiltradas = async (req: Request, res: Response) => {
     const { busqueda } = req.params;
     const searchTerm = isNaN(Number(busqueda)) ? busqueda : Number(busqueda);
     const resultado = await filtrarVentasPorCliente(searchTerm);
+
+    if (!resultado.ok) {
+      res.status(400).json(resultado);
+      return;
+    }
+
+    res.json(resultado);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Por favor hable con el administrador",
+    });
+  }
+};
+/*
+export const obtenerTopProductos = async (req: Request, res: Response) => {
+  try {
+    const resultado = await getTopProductosVendidos();
+
+    if (!resultado.ok) {
+      res.status(400).json(resultado);
+      return;
+    }
+
+    res.json(resultado);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Por favor hable con el administrador",
+    });
+  }
+};
+*/
+export const obtenerMontosTresMeses = async (req: Request, res: Response) => {
+  try {
+    const resultado = await getMontosTresMeses();
 
     if (!resultado.ok) {
       res.status(400).json(resultado);
