@@ -11,6 +11,7 @@ import * as userRoutes from "../routes/usuarioRoute";
 import * as proveedoresRoutes from "../routes/proveedorRoutes";
 import * as loginRoutes from "../routes/loginRoute";
 import * as ventasRoutes from "../routes/ventaRoute";
+import * as informesRoutes from "../routes/informesRoutes";
 class Server {
   private app: Application;
   private port: string;
@@ -25,6 +26,7 @@ class Server {
     proveedores: "/api/proveedores",
     login: "/api/login",
     ventas: "/api/ventas",
+    informes: "/api/informes",
   };
 
   constructor() {
@@ -77,6 +79,7 @@ class Server {
     this.app.use(this.apiPaths.proveedores, proveedoresRoutes.default);
     this.app.use(this.apiPaths.login, loginRoutes.default);
     this.app.use(this.apiPaths.ventas, ventasRoutes.default);
+    this.app.use(this.apiPaths.informes, informesRoutes.default);
   }
 }
 

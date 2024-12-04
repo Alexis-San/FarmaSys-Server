@@ -13,7 +13,7 @@ export const insertarVenta = async (
 ): Promise<Venta> => {
   try {
     const nuevaVenta = await Venta.create({
-      id_cliente,
+      id_cliente: id_usuario || 1,
       id_usuario: id_usuario || 1, // Si id_usuario es undefined, usa 1
       monto_final: 0, // Requerido por la interfaz
       // id_venta es autoincremental, no necesita ser proporcionado
