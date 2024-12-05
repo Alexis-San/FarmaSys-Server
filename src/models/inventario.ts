@@ -1,8 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import db from "../db/connection";
-import producto from "./producto";
-import Venta from "./ventas";
-import VentaDetalle from "./ventaDetalle";
+import Producto from "./producto";
 
 interface InventarioAttributes {
   id: number;
