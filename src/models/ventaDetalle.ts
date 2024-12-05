@@ -10,6 +10,8 @@ interface VentaDetalleAttributes {
   cantidad: number;
   monto_total: number;
   estado?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 class VentaDetalle
@@ -22,6 +24,9 @@ class VentaDetalle
   public cantidad!: number;
   public monto_total!: number;
   public estado!: boolean;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 VentaDetalle.init(

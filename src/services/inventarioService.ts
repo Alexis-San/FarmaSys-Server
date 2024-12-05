@@ -19,7 +19,12 @@ export const obtenerInventarios = async () => {
         "estado",
         "productoId",
       ],
-      where: { estado: true },
+      where: {
+        estado: true,
+        stock: {
+          [Op.gt]: 0,
+        },
+      },
       include: [
         {
           model: Producto,

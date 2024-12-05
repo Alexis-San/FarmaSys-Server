@@ -3,6 +3,7 @@ import Cliente from "../models/cliente";
 import VentaDetalle from "../models/ventaDetalle";
 import Inventario from "../models/inventario";
 import { Op, Sequelize } from "sequelize";
+import Producto from "../models/producto";
 
 export const obtenerTodasLasVentasVentas = async () => {
   try {
@@ -125,7 +126,82 @@ export const getMontosTresMeses = async () => {
   }
 };
 
+// Then modify getTopProductosVendidos function
 export const getTopProductosVendidos = async () => {
+  try {
+    const today = new Date();
+    const firstDayLastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+    const lastDayLastMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
+
+    const result = await VentaDetalle.findAll({
+      attributes: [
+        "id_producto_inventario",
+        [
+          VentaDetalle.sequelize!.fn(
+            "SUM",
+            VentaDetalle.sequelize!.col("cantidad")
+          ),
+          "total_vendido",
+        ],
+      ],
+      include: [
+        {
+          model: Inventario,
+          as: "Inventario",
+          attributes: ["stock"],
+          required: true,
+          include: [
+            {
+              model: Producto,
+              attributes: ["nombre_comercial"],
+              required: true,
+            },
+          ],
+        },
+      ],
+      where: {
+        createdAt: {
+          [Op.between]: [firstDayLastMonth, lastDayLastMonth],
+        },
+      },
+      group: [
+        "VentaDetalle.id_producto_inventario",
+        "Inventario.id",
+        "Inventario->producto.id",
+      ],
+      order: [
+        [
+          VentaDetalle.sequelize!.fn(
+            "SUM",
+            VentaDetalle.sequelize!.col("cantidad")
+          ),
+          "DESC",
+        ],
+      ],
+    });
+
+    return {
+      ok: true,
+      productos: result,
+    };
+  } catch (error) {
+    console.error("Error al obtener los productos más vendidos:", error);
+    return {
+      ok: false,
+      msg: "Error al obtener los productos más vendidos. Por favor, contacte al administrador.",
+    };
+  }
+};
+
+/*export const getTopProductosVendidos = async () => {
   try {
     const topProductos = await VentaDetalle.findAll({
       attributes: [
@@ -159,7 +235,7 @@ export const getTopProductosVendidos = async () => {
     };
   }
 };
-
+*/
 export const getHistorialVentasCliente = async (clienteId: number) => {
   try {
     const ventas = await Venta.findAll({
@@ -211,15 +287,21 @@ export const filtrarVentasPorCliente = async (busqueda: string | number) => {
         typeof busqueda === "string"
           ? {
               [Op.or]: [
-                { nombre: { [Op.iLike]: `%${busqueda}%` } },
-                { apellido: { [Op.iLike]: `%${busqueda}%` } },
+                Sequelize.where(
+                  Sequelize.fn("UPPER", Sequelize.col("Cliente.nombre")),
+                  { [Op.like]: `%${busqueda.toUpperCase()}%` }
+                ),
+                Sequelize.where(
+                  Sequelize.fn("UPPER", Sequelize.col("Cliente.apellido")),
+                  { [Op.like]: `%${busqueda.toUpperCase()}%` }
+                ),
               ],
             }
           : undefined,
     };
 
     if (typeof busqueda === "number") {
-      whereClause.id_cliente = busqueda;
+      whereClause.id_venta = busqueda; // Changed from id_cliente to id
     }
 
     const ventas = await Venta.findAll({
