@@ -211,8 +211,14 @@ export const filtrarVentasPorCliente = async (busqueda: string | number) => {
         typeof busqueda === "string"
           ? {
               [Op.or]: [
-                { nombre: { [Op.iLike]: `%${busqueda}%` } },
-                { apellido: { [Op.iLike]: `%${busqueda}%` } },
+                Sequelize.where(
+                  Sequelize.fn("UPPER", Sequelize.col("Cliente.nombre")),
+                  { [Op.like]: `%${busqueda.toUpperCase()}%` }
+                ),
+                Sequelize.where(
+                  Sequelize.fn("UPPER", Sequelize.col("Cliente.apellido")),
+                  { [Op.like]: `%${busqueda.toUpperCase()}%` }
+                ),
               ],
             }
           : undefined,
