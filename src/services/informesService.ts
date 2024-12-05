@@ -2,7 +2,7 @@ import Venta from "../models/ventas";
 import Cliente from "../models/cliente";
 import VentaDetalle from "../models/ventaDetalle";
 import Inventario from "../models/inventario";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 
 export const obtenerTodasLasVentasVentas = async () => {
   try {
@@ -124,60 +124,42 @@ export const getMontosTresMeses = async () => {
     };
   }
 };
-/*
+
 export const getTopProductosVendidos = async () => {
   try {
-    const ventas = await VentaDetalle.findAll({
+    const topProductos = await VentaDetalle.findAll({
       attributes: [
         "id_producto_inventario",
-        [
-          VentaDetalle.sequelize!.fn(
-            "COUNT",
-            VentaDetalle.sequelize!.col("id_producto_inventario")
-          ),
-          "total_vendido",
-        ],
-        [
-          VentaDetalle.sequelize!.fn(
-            "SUM",
-            VentaDetalle.sequelize!.col("cantidad")
-          ),
-          "cantidad_total",
-        ],
+        [Sequelize.fn("SUM", Sequelize.col("cantidad")), "total_vendido"],
       ],
       include: [
         {
           model: Inventario,
-          attributes: ["nombre_producto", "codigo_producto"],
-          required: true,
+          as: "Inventario",
+          attributes: ["productoid", "precio_venta"],
         },
       ],
       where: {
         estado: true,
       },
-      group: [
-        "VentaDetalle.id_producto_inventario",
-        "Inventario.nombre_producto",
-        "Inventario.codigo_producto",
-      ],
-      order: [[sequelize.literal("cantidad_total"), "DESC"]],
-      limit: 10,
-      raw: true,
+      group: ["id_producto_inventario", "Inventario.id"],
+      order: [[Sequelize.literal("total_vendido"), "DESC"]],
+      limit: 5,
     });
 
     return {
       ok: true,
-      productos: ventas,
+      productos: topProductos,
     };
   } catch (error) {
-    console.error("Error al obtener top productos vendidos:", error);
+    console.error("Error al obtener los productos más vendidos:", error);
     return {
       ok: false,
-      msg: "Error al obtener top productos vendidos. Por favor, contacte al administrador.",
+      msg: "Error al obtener los productos más vendidos. Por favor, contacte al administrador.",
     };
   }
 };
-*/
+
 export const getHistorialVentasCliente = async (clienteId: number) => {
   try {
     const ventas = await Venta.findAll({

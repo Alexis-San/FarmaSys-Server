@@ -28,6 +28,7 @@ VentaDetalle.init(
   {
     id_venta: {
       type: DataTypes.INTEGER,
+      primaryKey: true,
       references: {
         model: Venta,
         key: "id_venta",
@@ -64,5 +65,15 @@ VentaDetalle.init(
     tableName: "ventaDetalle",
   }
 );
+
+VentaDetalle.belongsTo(Inventario, {
+  foreignKey: "id_producto_inventario",
+  as: "Inventario",
+});
+
+Inventario.hasMany(VentaDetalle, {
+  foreignKey: "id_producto_inventario",
+  as: "VentaDetalles",
+});
 
 export default VentaDetalle;
