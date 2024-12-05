@@ -4,7 +4,7 @@ import {
   getVentasUltimoMes,
   getHistorialVentasCliente,
   filtrarVentasPorCliente,
-  //getTopProductosVendidos,
+  getTopProductosVendidos,
   getMontosTresMeses,
 } from "../services/informesService";
 
@@ -89,7 +89,7 @@ export const obtenerVentasFiltradas = async (req: Request, res: Response) => {
     });
   }
 };
-/*
+
 export const obtenerTopProductos = async (req: Request, res: Response) => {
   try {
     const resultado = await getTopProductosVendidos();
@@ -108,7 +108,6 @@ export const obtenerTopProductos = async (req: Request, res: Response) => {
     });
   }
 };
-*/
 export const obtenerMontosTresMeses = async (req: Request, res: Response) => {
   try {
     const resultado = await getMontosTresMeses();

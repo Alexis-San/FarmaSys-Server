@@ -92,13 +92,4 @@ Inventario.init(
   }
 );
 
-Inventario.belongsToMany(Venta, {
-  through: VentaDetalle,
-  foreignKey: "id_producto_inventario",
-});
-Venta.belongsToMany(Inventario, {
-  through: VentaDetalle,
-  foreignKey: "id_venta",
-});
-
 export default Inventario;
