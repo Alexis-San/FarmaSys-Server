@@ -301,7 +301,7 @@ export const filtrarVentasPorCliente = async (busqueda: string | number) => {
     };
 
     if (typeof busqueda === "number") {
-      whereClause.id_cliente = busqueda;
+      whereClause.id_venta = busqueda; // Changed from id_cliente to id
     }
 
     const ventas = await Venta.findAll({
