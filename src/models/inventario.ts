@@ -11,6 +11,7 @@ interface InventarioAttributes {
   stock: number;
   lote?: string;
   estado?: boolean;
+  productoId?: number;
 }
 
 class Inventario
@@ -25,6 +26,7 @@ class Inventario
   public stock!: number;
   public lote?: string;
   public estado!: boolean;
+  public productoId?: number;
 
   // Timestamps opcionales
   public readonly createdAt!: Date;
@@ -64,6 +66,14 @@ Inventario.init(
     estado: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    productoId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "producto",
+        key: "id",
+      },
     },
   },
   {

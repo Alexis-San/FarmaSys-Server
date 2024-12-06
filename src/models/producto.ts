@@ -1,13 +1,51 @@
-import { DataTypes } from "sequelize";
+import {
+  Model,
+  DataTypes,
+  BelongsToManyAddAssociationsMixin,
+  BelongsToManyGetAssociationsMixin,
+} from "sequelize";
 import db from "../db/connection";
-import actuador from "./actuador";
-import proveedor from "./proveedor";
-import categoria from "./categoria";
-import laboratorio from "./laboratorio";
-import inventario from "./inventario";
+import Actuador from "./actuador";
+import Proveedor from "./proveedor";
+import Categoria from "./categoria";
+import Laboratorio from "./laboratorio";
+import Inventario from "./inventario";
 
-const Producto = db.define(
-  "producto",
+interface ProductoAttributes {
+  id?: number;
+  codigo_cafapar?: number;
+  nombre_comercial: string;
+  presentacion: string;
+  descripcion?: string;
+  precio_venta: number;
+  condicion_venta: "BAJO RECETA" | "VENTA LIBRE";
+  procedencia?: "NACIONAL" | "IMPORTADO";
+  estado?: boolean;
+  laboratorioId?: number;
+}
+
+class Producto extends Model<ProductoAttributes> implements ProductoAttributes {
+  public id!: number;
+  public codigo_cafapar!: number;
+  public nombre_comercial!: string;
+  public presentacion!: string;
+  public descripcion!: string;
+  public precio_venta!: number;
+  public condicion_venta!: "BAJO RECETA" | "VENTA LIBRE";
+  public procedencia!: "NACIONAL" | "IMPORTADO";
+  public estado!: boolean;
+  public laboratorioId!: number;
+
+  public setActuadores!: BelongsToManyAddAssociationsMixin<Actuador, number>;
+  public setCategorias!: BelongsToManyAddAssociationsMixin<Categoria, number>;
+  public setProveedores!: BelongsToManyAddAssociationsMixin<Proveedor, number>;
+  // Optionally add getter methods if needed
+  public getActuadores!: BelongsToManyGetAssociationsMixin<Actuador>;
+  public getCategorias!: BelongsToManyGetAssociationsMixin<Categoria>;
+  public getProveedores!: BelongsToManyGetAssociationsMixin<typeof Proveedor>;
+}
+
+Producto.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -36,7 +74,7 @@ const Producto = db.define(
     condicion_venta: {
       type: DataTypes.ENUM("BAJO RECETA", "VENTA LIBRE"),
       allowNull: false,
-    }, //nacional, importado
+    },
     procedencia: {
       type: DataTypes.ENUM("NACIONAL", "IMPORTADO"),
     },
@@ -46,6 +84,9 @@ const Producto = db.define(
     },
   },
   {
+    sequelize: db,
+    modelName: "Producto",
+    tableName: "producto",
     indexes: [
       {
         unique: false,
@@ -55,54 +96,87 @@ const Producto = db.define(
   }
 );
 
+// Tablas intermedias
 const Producto_Actuador = db.define(
   "producto_actuador",
   {},
   { timestamps: true, tableName: "producto_actuador" }
 );
+
 const Producto_Proveedor = db.define(
   "producto_proveedor",
   {},
   { timestamps: true, tableName: "producto_proveedor" }
 );
+
 const Producto_Categoria = db.define(
   "producto_categoria",
   {},
   { timestamps: true, tableName: "producto_categoria" }
 );
 
-// Definición del modelo Producto
-Producto.hasMany(inventario, {
+// Asociaciones
+Producto.hasMany(Inventario, {
   foreignKey: "productoId",
   sourceKey: "id",
+  as: "Inventarios",
 });
-inventario.belongsTo(Producto, {
-  foreignKey: "productoId",
-  targetKey: "id",
-});
-// Definición del modelo Laboratorio
-Producto.belongsTo(laboratorio, {
+
+Producto.belongsTo(Laboratorio, {
   foreignKey: {
     name: "laboratorioId",
     allowNull: true,
   },
-  targetKey: "id",
-});
-laboratorio.hasMany(Producto, {
-  foreignKey: {
-    name: "laboratorioId",
-    allowNull: true,
-  },
-  sourceKey: "id",
+  as: "Laboratorio",
 });
 
-Producto.belongsToMany(actuador, { through: Producto_Actuador });
-actuador.belongsToMany(Producto, { through: Producto_Actuador });
+Producto.belongsToMany(Actuador, {
+  through: Producto_Actuador,
+  as: "Actuadores",
+  foreignKey: "ProductoId", // Match the auto-generated name
+});
 
-Producto.belongsToMany(proveedor, { through: Producto_Proveedor });
-proveedor.belongsToMany(Producto, { through: Producto_Proveedor });
+Actuador.belongsToMany(Producto, {
+  through: Producto_Actuador,
+  as: "Productos",
+  foreignKey: "ActuadorId", // Match the auto-generated name
+});
 
-Producto.belongsToMany(categoria, { through: Producto_Categoria });
-categoria.belongsToMany(Producto, { through: Producto_Categoria });
+Producto.belongsToMany(Proveedor, {
+  through: Producto_Proveedor,
+  as: "Proveedores",
+  foreignKey: "ProductoId",
+});
+
+Proveedor.belongsToMany(Producto, {
+  // Falta esta asociación inversa
+  through: Producto_Proveedor,
+  as: "Productos",
+  foreignKey: "ProveedorId",
+});
+
+Producto.belongsToMany(Categoria, {
+  through: Producto_Categoria,
+  as: "Categorias",
+  foreignKey: "ProductoId", // Falta esto
+});
+
+Categoria.belongsToMany(Producto, {
+  // Falta esta asociación inversa
+  through: Producto_Categoria,
+  as: "Productos",
+  foreignKey: "CategoriumId",
+});
+
+Inventario.belongsTo(Producto, {
+  foreignKey: "productoId",
+  as: "producto", // Este alias debe coincidir con el include
+});
+
+// En producto.ts
+Producto.hasMany(Inventario, {
+  foreignKey: "productoId",
+  as: "Inventario",
+});
 
 export default Producto;

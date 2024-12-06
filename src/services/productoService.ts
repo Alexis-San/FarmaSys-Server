@@ -1,10 +1,15 @@
 import { Op } from "sequelize";
 import Producto from "../models/producto";
+import Actuador from "../models/actuador";
+import Categoria from "../models/categoria";
+import Proveedor from "../models/proveedor";
+import Laboratorio from "../models/laboratorio"; // Add this import
 import { ProductoAttributes } from "../interfaces/productoInterfaz";
 
+// En productoService.ts
 export const obtenerProductos = async () => {
   try {
-    return await Producto.findAll({
+    const productos = await Producto.findAll({
       where: { estado: true },
       attributes: [
         "id",
@@ -15,11 +20,41 @@ export const obtenerProductos = async () => {
         "precio_venta",
         "condicion_venta",
         "procedencia",
-        "laboratorioId",
+      ],
+      include: [
+        {
+          model: Actuador,
+          attributes: ["id", "nombre"],
+          as: "Actuadores",
+        },
+        {
+          model: Categoria,
+          attributes: ["id", "nombre"],
+          as: "Categorias",
+        },
+        {
+          model: Proveedor,
+          attributes: ["id", "nombre"],
+          as: "Proveedores",
+        },
+        {
+          model: Laboratorio,
+          attributes: ["id", "nombre"],
+          as: "Laboratorio",
+        },
       ],
     });
+
+    if (!productos) {
+      throw new Error("No se encontraron productos");
+    }
+
+    return productos;
   } catch (error) {
-    throw new Error("Error al obtener los productos: " + error);
+    if (error instanceof Error) {
+      throw new Error(`Error al obtener los productos: ${error.message}`);
+    }
+    throw new Error("Error desconocido al obtener los productos");
   }
 };
 
@@ -79,56 +114,146 @@ export const obtenerProductoPorId = async (id: string) => {
   }
 };
 
+// En productoService.ts
 export const crearProducto = async (body: any) => {
   try {
-    // Convertir los campos de texto a mayúsculas
-    const nombreComercialMayusculas = body.nombre_comercial.toUpperCase();
-    const presentacionMayusculas = body.presentacion.toUpperCase();
-    const descripcionMayusculas = body.descripcion
-      ? body.descripcion.toUpperCase()
-      : null;
-    const condicionVentaMayusculas = body.condicion_venta.toUpperCase();
-    const procedenciaMayusculas = body.procedencia.toUpperCase();
+    console.log("Body completo recibido:", body);
 
-    const existeProducto = await Producto.findOne({
-      where: {
-        nombre_comercial: nombreComercialMayusculas,
-        estado: true,
-      },
+    // Asegurar que los arrays existan, incluso vacíos
+    const {
+      actuadores = [],
+      categorias = [],
+      proveedores = [],
+      ...productoData
+    } = body;
+
+    console.log("Datos parseados:", {
+      actuadores,
+      categorias,
+      proveedores,
     });
 
-    if (existeProducto) {
-      throw new Error(
-        `Ya existe un producto con el nombre comercial ${body.nombre_comercial}`
-      );
+    // Crear el producto primero
+    const producto = await Producto.create({
+      ...productoData,
+      nombre_comercial: productoData.nombre_comercial.toUpperCase(),
+      presentacion: productoData.presentacion.toUpperCase(),
+      descripcion: productoData.descripcion
+        ? productoData.descripcion.toUpperCase()
+        : null,
+      condicion_venta: productoData.condicion_venta.toUpperCase(),
+      procedencia: productoData.procedencia.toUpperCase(),
+    });
+
+    // Establecer las relaciones si existen
+    if (actuadores.length > 0) {
+      await producto.setActuadores(actuadores);
     }
 
-    return await Producto.create({
-      ...body,
-      nombre_comercial: nombreComercialMayusculas,
-      presentacion: presentacionMayusculas,
-      descripcion: descripcionMayusculas,
-      condicion_venta: condicionVentaMayusculas,
-      procedencia: procedenciaMayusculas,
-      estado: true,
+    if (categorias.length > 0) {
+      await producto.setCategorias(categorias);
+    }
+
+    if (proveedores.length > 0) {
+      await producto.setProveedores(proveedores);
+    }
+
+    // Recargar el producto con sus relaciones
+    return await Producto.findByPk(producto.id, {
+      include: [
+        { model: Actuador, as: "Actuadores" },
+        { model: Categoria, as: "Categorias" },
+        { model: Proveedor, as: "Proveedores" },
+      ],
     });
   } catch (error) {
-    throw new Error("Error al crear el producto: " + error);
+    console.error("Error detallado:", error);
+    throw new Error(`Error al crear el producto: ${error}`);
   }
 };
 
 export const actualizarProducto = async (id: string, body: any) => {
   try {
+    console.log("Iniciando actualización del producto:", { id, body });
+
+    // Extraer las asociaciones del body
+    const {
+      actuadores = [],
+      categorias = [],
+      proveedores = [],
+      ...productoData
+    } = body;
+
+    console.log("Datos parseados:", {
+      actuadores,
+      categorias,
+      proveedores,
+      productoData,
+    });
+
+    // Buscar el producto
     const producto = await Producto.findOne({
       where: {
         id,
         estado: true,
       },
     });
+
     if (!producto) {
-      throw new Error(`No existe un producto con id ${id}`);
+      throw new Error(`No existe un producto activo con id ${id}`);
     }
-    return await producto.update(body);
+
+    console.log("Producto encontrado:", producto.toJSON());
+
+    // Convertir strings a mayúsculas
+    const datosActualizados = {
+      ...productoData,
+      nombre_comercial: productoData.nombre_comercial?.toUpperCase(),
+      presentacion: productoData.presentacion?.toUpperCase(),
+      descripcion: productoData.descripcion?.toUpperCase(),
+      condicion_venta: productoData.condicion_venta?.toUpperCase(),
+      procedencia: productoData.procedencia?.toUpperCase(),
+    };
+
+    console.log("Datos a actualizar:", datosActualizados);
+
+    // Actualizar el producto
+    await producto.update(datosActualizados);
+
+    // Actualizar asociaciones si se proporcionaron
+    if (actuadores.length > 0) {
+      await producto.setActuadores(actuadores);
+    }
+    if (categorias.length > 0) {
+      await producto.setCategorias(categorias);
+    }
+    if (proveedores.length > 0) {
+      await producto.setProveedores(proveedores);
+    }
+
+    // Retornar producto actualizado con sus relaciones
+    const productoActualizado = await Producto.findByPk(id, {
+      include: [
+        {
+          model: Actuador,
+          as: "Actuadores",
+          through: { attributes: [] },
+        },
+        {
+          model: Categoria,
+          as: "Categorias",
+          through: { attributes: [] },
+        },
+        {
+          model: Proveedor,
+          as: "Proveedores",
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    console.log("Producto actualizado:", productoActualizado?.toJSON());
+    return productoActualizado;
   } catch (error) {
     throw new Error(`Error al actualizar el producto con id ${id}: ${error}`);
   }

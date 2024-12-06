@@ -4,7 +4,7 @@ import Cliente from "./cliente";
 import Usuario from "./usuario";
 
 interface VentaAttributes {
-  id_venta?: number; // Hacerlo opcional ya que es autoincremental
+  id?: number; // Hacerlo opcional ya que es autoincremental
   id_cliente: number;
   id_usuario: number;
   descuento?: number;
@@ -15,7 +15,7 @@ interface VentaAttributes {
 }
 
 class Venta extends Model<VentaAttributes> implements VentaAttributes {
-  public id_venta!: number;
+  public id!: number;
   public id_cliente!: number;
   public id_usuario!: number;
   public descuento?: number;
@@ -28,7 +28,7 @@ class Venta extends Model<VentaAttributes> implements VentaAttributes {
 
 Venta.init(
   {
-    id_venta: {
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,

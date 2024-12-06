@@ -1,4 +1,4 @@
-import { Transaction, Model, Op } from "sequelize";
+import { Transaction, Model, Op, WhereOptions } from "sequelize";
 import db from "../db/connection";
 import inventario from "../models/inventario";
 import Producto from "../models/producto";
@@ -7,6 +7,16 @@ import { ProductoAttributes } from "../interfaces/productoInterfaz";
 
 export const obtenerInventarios = async () => {
   try {
+    const whereClause = {
+      estado: true,
+      stock: {
+        [Op.gt]: 0,
+      },
+      productoId: {
+        [Op.not]: null,
+      },
+    } as WhereOptions<InventarioAttributes>;
+
     return await inventario.findAll({
       attributes: [
         "id",
@@ -19,32 +29,24 @@ export const obtenerInventarios = async () => {
         "estado",
         "productoId",
       ],
-      where: {
-        estado: true,
-        stock: {
-          [Op.gt]: 0,
-        },
-      },
+      where: whereClause,
       include: [
         {
           model: Producto,
           as: "producto",
           attributes: [
             "id",
-            "codigo_cafapar",
             "nombre_comercial",
             "presentacion",
             "descripcion",
             "precio_venta",
             "condicion_venta",
-            "procedencia",
-            "laboratorioId",
           ],
         },
       ],
     });
   } catch (error) {
-    throw new Error("Error al obtener inventarios con detalles: " + error);
+    throw new Error(`Error al obtener inventarios: ${error}`);
   }
 };
 

@@ -1,22 +1,40 @@
 import { DataTypes, Model } from "sequelize";
 import db from "../db/connection";
 
-const actuador = db.define("actuadores", {
-  id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  nombre: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  //este campo es para eliminacion logica
-  estado: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-  },
-});
+interface ActuadorAttributes {
+  id: number;
+  nombre: string;
+  estado?: boolean;
+}
 
-export default actuador;
+class Actuador extends Model<ActuadorAttributes> implements ActuadorAttributes {
+  public id!: number;
+  public nombre!: string;
+  public estado!: boolean;
+}
+
+Actuador.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    estado: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  },
+  {
+    sequelize: db,
+    modelName: "Actuador",
+    tableName: "Actuadores",
+  }
+);
+
+export default Actuador;

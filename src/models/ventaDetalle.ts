@@ -36,7 +36,7 @@ VentaDetalle.init(
       primaryKey: true,
       references: {
         model: Venta,
-        key: "id_venta",
+        key: "id",
       },
     },
     id_producto_inventario: {
