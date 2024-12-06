@@ -161,6 +161,7 @@ export const getTopProductosVendidos = async () => {
           include: [
             {
               model: Producto,
+              as: "producto",
               attributes: ["nombre_comercial"],
               required: true,
             },
@@ -193,10 +194,10 @@ export const getTopProductosVendidos = async () => {
       productos: result,
     };
   } catch (error) {
-    console.error("Error al obtener los productos más vendidos:", error);
+    console.error("Error al obtener montos por mes:", error);
     return {
       ok: false,
-      msg: "Error al obtener los productos más vendidos. Por favor, contacte al administrador.",
+      msg: "Error al obtener montos por mes. Por favor, contacte al administrador.",
     };
   }
 };
@@ -301,7 +302,7 @@ export const filtrarVentasPorCliente = async (busqueda: string | number) => {
     };
 
     if (typeof busqueda === "number") {
-      whereClause.id_venta = busqueda; // Changed from id_cliente to id
+      whereClause.id = busqueda; // Changed from id_cliente to id
     }
 
     const ventas = await Venta.findAll({
