@@ -13,7 +13,11 @@ export const getProductos = async (req: Request, res: Response) => {
     const productos = await obtenerProductos();
     res.json(productos);
   } catch (error) {
-    res.status(500).json({ msg: "Error al obtener los productos", error });
+    console.error("Error en getProductos:", error); // Agregar log
+    res.status(500).json({
+      msg: "Error al obtener los productos",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
   }
 };
 
@@ -57,20 +61,45 @@ export const getProductoPorId = async (req: Request, res: Response) => {
 export const postProducto = async (req: Request, res: Response) => {
   const body = req.body;
 
+  // Validación básica del body
   if (!body || Object.keys(body).length === 0) {
-    res.status(400).json({ msg: "El cuerpo de la solicitud está vacío" });
+    res.status(400).json({
+      msg: "El cuerpo de la solicitud está vacío",
+    });
+    return;
+  }
+
+  // Validación de campos requeridos
+  const camposRequeridos = ["nombre_comercial", "presentacion", "precio_venta"];
+  const camposFaltantes = camposRequeridos.filter((campo) => !body[campo]);
+
+  if (camposFaltantes.length > 0) {
+    res.status(400).json({
+      msg: `Faltan campos requeridos: ${camposFaltantes.join(", ")}`,
+    });
     return;
   }
 
   try {
-    await crearProducto(body);
-    res.json({ msg: "ok" });
+    const nuevoProducto = await crearProducto(body);
+    res.status(201).json({
+      msg: "Producto creado exitosamente",
+      data: nuevoProducto,
+    });
   } catch (error) {
     if (error instanceof Error) {
-      res.status(400).json({ msg: error.message });
-    } else {
-      res.status(400).json({ msg: "Unknown error" });
+      // Si es un error conocido (ej: producto duplicado)
+      res.status(400).json({
+        msg: error.message,
+      });
+      return;
     }
+
+    // Error interno del servidor
+    res.status(500).json({
+      msg: "Error interno al crear el producto",
+      error: "Unknown error",
+    });
   }
 };
 
