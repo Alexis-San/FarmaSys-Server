@@ -2,7 +2,6 @@ import Venta from "../models/ventas";
 import VentaDetalle from "../models/ventaDetalle";
 import Inventario from "../models/inventario";
 import db from "../db/connection";
-import { VentaAttributes } from "../interfaces/ventaInterfaz";
 import { VentaDetalleAttributes } from "../interfaces/ventaDetalleInterfaz";
 // ...otras importaciones necesarias...
 

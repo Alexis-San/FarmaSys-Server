@@ -3,7 +3,7 @@ import db from "../db/connection";
 import Producto from "./producto";
 
 interface InventarioAttributes {
-  id: number;
+  id?: number;
   precio_venta: number;
   precio_compra: number;
   descripcion?: string;
@@ -18,7 +18,7 @@ class Inventario
   extends Model<InventarioAttributes>
   implements InventarioAttributes
 {
-  public id!: number;
+  public id?: number;
   public precio_venta!: number;
   public precio_compra!: number;
   public descripcion?: string;
