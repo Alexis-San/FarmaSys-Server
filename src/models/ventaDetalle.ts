@@ -4,6 +4,7 @@ import Venta from "./ventas";
 import Inventario from "./inventario";
 
 interface VentaDetalleAttributes {
+  id?: number;
   id_venta: number;
   id_producto_inventario: number;
   precio: number;
@@ -18,6 +19,7 @@ class VentaDetalle
   extends Model<VentaDetalleAttributes>
   implements VentaDetalleAttributes
 {
+  public id!: number;
   public id_venta!: number;
   public id_producto_inventario!: number;
   public precio!: number;
@@ -31,9 +33,13 @@ class VentaDetalle
 
 VentaDetalle.init(
   {
-    id_venta: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
+    },
+    id_venta: {
+      type: DataTypes.INTEGER,
       references: {
         model: Venta,
         key: "id",
