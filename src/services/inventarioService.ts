@@ -9,9 +9,6 @@ export const obtenerInventarios = async () => {
   try {
     const whereClause = {
       estado: true,
-      stock: {
-        [Op.gt]: 0,
-      },
       productoId: {
         [Op.not]: null,
       },
